@@ -9,24 +9,19 @@
         {{mensajeError}}
     </div>
 
-    <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" >
-
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" >
         <div class="form-group">
             <label for="email">Email:</label>
             <input 
                 type="email"
                 id="email"
-                name="email"
-                ngModel
-                #email="ngModel"
-                required
-                email
+                formControlName="email"
                 placeholder="Ingrese su email"
-                [class.invalid]="email.invalid && email.touched"
+                [class.invalid]="isFildInvalid('email')"
             >
-            <div *ngIf="email.invalid && email.touched" class="error-messages">
-                <span *ngIf="email.errors?.['required']" class="error">El email es obligatorio.</span>
-                <span *ngIf="email.errors?.['email']" class="error">Formato de email inválido.</span>
+            <div *ngIf="isFildInvalid('email')" class="error-messages">
+                <span *ngIf="hasError('email','required')">El email es obligatorio.</span>
+                <span *ngIf="hasError('email','email')">Formato de email inválido.</span>
             </div>
         </div>
 
@@ -35,17 +30,13 @@
             <input 
                 type="password"
                 id="password"
-                name="password"
-                ngModel
-                #password="ngModel"
-                required
-                minlength="6"
+                formControlName="password"
                 placeholder="Ingrese su contraseña"
-                [class.invalid]="password.invalid && password.touched"
+                [class.invalid]="isFildInvalid('password')"
             >
-            <div *ngIf="password.invalid && password.touched" class="error-messages">
-                <span *ngIf="password.errors?.['required']" class="error">La contraseña es obligatoria.</span>
-                <span *ngIf="password.errors?.['minlength']" class="error">La contraseña debe de tener mínimo 6 caracteres.</span>
+            <div *ngIf="isFildInvalid('password')" class="error-messages">
+                <span *ngIf="hasError('password','required')" class="error">La contraseña es obligatoria.</span>
+                <span *ngIf="hasError('password','minlength')" class="error">La contraseña debe de tener mínimo 6 caracteres.</span>
             </div>
         </div>
 
@@ -59,9 +50,7 @@
         </button>
 
 
-
     </form>
+
     
-
-
 </div>
