@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Auth } from '../../services/auth';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +17,10 @@ export class Login {
   flg_enviando:boolean = false;
   flg_mostrarDebug: boolean = false;
 
-  constructor(private fb: FormBuilder){
+  constructor(private fb: FormBuilder,
+              private authService: Auth,
+              private router: Router
+  ){
     this.loginForm = fb.group({
       email: ['',[Validators.required, Validators.email]],
       password: ['',[Validators.required, Validators.minLength(6)]]
@@ -39,21 +44,33 @@ export class Login {
 
       console.log('Datos del formulario', this.loginForm.value);
 
-      setTimeout(()=>{
+      const credentials = this.loginForm.value;
 
-        const formData = this.loginForm.value;
-        const email = formData.email;
-        const password = formData.password;
+      this.authService.login(credentials).subscribe({
+        next:(response) =>{
+          console.log('Login exitoso: ', response);
 
-        if(email === 'admin@test.com' && password === 'password'){
-          this.mensajeExito = 'Login exitoso. Redirigiendo...';
+          this.mensajeExito = 'Bienvenido/a ' + response?.user.name ;
+
           this.loginForm.reset();
-        }else{
-          this.mensajeError = 'Credenciales inválidas. Inténtalo de nuevo.';
+          
+          setTimeout(()=>{
+            this.router.navigate(['/home'])
+          }, 1000)
+          
+        },
+        error: (error) =>{
+          console.log('Error en login ',error);
+          this.mensajeError = 'Credenciales incorrectas'
+          this.flg_enviando = false;
+        },
+        complete: () =>{
+          console.log('Login request completado')
+          this.flg_enviando = false;
         }
+      })
 
-        this.flg_enviando = false;
-      }, 2000)
+
 
     }else{
       this.loginForm.markAllAsTouched();
